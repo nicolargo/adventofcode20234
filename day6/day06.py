@@ -31,33 +31,62 @@ def in_puzzle(puzzle, x, y):
 
 def count_path(puzzle):
     # Rotate the puzzle
-    # print_puzzle(input)
-    guard = get_guard(input)
+    # print_puzzle(puzzle)
+    guard = get_guard(puzzle)
     guard_direction = (0, -1)
-    while True:
-        # print_puzzle(puzzle)
+    while in_puzzle(puzzle, guard[0], guard[1]):
         next_position = (guard[0] + guard_direction[0], guard[1] + guard_direction[1])
-        if not in_puzzle(puzzle, next_position[0], next_position[1]):
-            # Guard no more in puzzle
-            set_puzzle(puzzle, guard[0], guard[1], "X")
-            break
-        elif get_puzzle(puzzle, next_position[0], next_position[1]) in ["#", "O"]:
+        if get_puzzle(puzzle, next_position[0], next_position[1]) in ["#"]:
             # Turn right
             guard_direction = (-guard_direction[1], guard_direction[0])
-        else:
-            # Move forward
-            set_puzzle(puzzle, next_position[0], next_position[1], "^")
-            set_puzzle(puzzle, guard[0], guard[1], "X")
-            guard = next_position
+            continue
+        # Move forward
+        # set_puzzle(puzzle, next_position[0], next_position[1], "^")
+        set_puzzle(puzzle, guard[0], guard[1], "X")
+        guard = next_position
     return sum([line.count("X") for line in puzzle])
 
 
-# Read input file
-input = read_input("./input-example-day06.txt")
+def count_obs_loop(puzzle):
+    # Rotate the puzzle
+    guard = get_guard(puzzle)
+    guard_direction = (0, -1)
+    guard_path = set()
+    while in_puzzle(puzzle, guard[0], guard[1]):
+        if (guard, guard_direction) in guard_path:
+            # We are in a loop... So return 0
+            return True
+        guard_path.add((guard, guard_direction))
+        next_position = (guard[0] + guard_direction[0], guard[1] + guard_direction[1])
+        if not in_puzzle(puzzle, next_position[0], next_position[1]):
+            return False
+        if get_puzzle(puzzle, next_position[0], next_position[1]) in ["#", "O"]:
+            # Turn right
+            guard_direction = (-guard_direction[1], guard_direction[0])
+            continue
+        guard = next_position
+    return False
 
 
-# Part 1
-print(f"Part 1: {count_path(input)}")
+def count_obs(puzzle, puzzle_path):
+    ret = 0
+    for y in range(len(puzzle)):
+        for x in range(len(puzzle[y])):
+            if get_puzzle(puzzle, x, y) != "^" and get_puzzle(puzzle_path, x, y) == "X":
+                puzzle_to_test = [line.copy() for line in puzzle]
+                set_puzzle(puzzle_to_test, x, y, "O")
+                ret += count_obs_loop(puzzle_to_test)
+    return ret
 
-# Part 2
-print("Part 2: ")
+
+if __name__ == "__main__":
+    input_file = "./input-day06.txt"
+
+    # Part 1
+    input_part1 = read_input(input_file)
+    print(f"Part 1: {count_path(input_part1)}")
+
+    # Part 2
+    input_part2 = read_input(input_file)
+    # The puzle solved in the part one is used to only test obs on path
+    print(f"Part 2: {count_obs(input_part2, input_part1)}")
