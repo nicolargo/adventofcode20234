@@ -20,6 +20,8 @@ def set_puzzle(puzzle, x, y, value):
 
 
 def get_puzzle(puzzle, x, y):
+    if x < 0 or y < 0 or x >= len(puzzle[0]) or y >= len(puzzle):
+        return None
     return puzzle[y][x]
 
 
@@ -67,13 +69,53 @@ def part1(puzzle):
     antennas = get_antennas(puzzle)
     # For each frequency, identify the antinodes
     antinodes = get_antinodes(antennas)
+    # Put antinodes on the puzzle
     for a in antinodes:
         set_puzzle(puzzle, a[0], a[1], "#")
-    return sum(line.count("#") for line in puzzle)
+    # Return the number of antinodes
+    # print_puzzle(puzzle)
+    return sum(line.count(".") for line in puzzle)
+
+
+def get_tfrequency(antennas, puzzle):
+    ret = set()
+    for freq in antennas:
+        # Define all combinations
+        comb = list(combinations(antennas[freq], 2))
+        for c in comb:
+            # Compute direction
+            direction = tuple((b - a) for a, b in zip(*c))
+            # Start with the current antenna position
+            pos = c
+            while (pos[0][0] > 0 and pos[0][1] > 0) or (
+                pos[1][0] < len(puzzle[0]) and pos[1][1] < len(puzzle)
+            ):
+                # Compute tfrequency thanks to direction vector
+                tfrequency = (
+                    (pos[0][0] - direction[0], pos[0][1] - direction[1]),
+                    (pos[1][0] + direction[0], pos[1][1] + direction[1]),
+                )
+                ret.update(tfrequency)
+                pos = tfrequency
+    return ret
 
 
 def part2(puzzle):
-    pass
+    print_puzzle(puzzle)
+    # Get antennas position in the puzzle as a dict:
+    # key = frequency
+    # values: list of position
+    antennas = get_antennas(puzzle)
+    # For each frequency, identify the antinodes
+    antinodes = get_tfrequency(antennas, puzzle)
+    # Put antinodes on the puzzle
+    for a in antinodes:
+        if get_puzzle(puzzle, a[0], a[1]) != ".":
+            continue
+        set_puzzle(puzzle, a[0], a[1], "#")
+    # Return the number of antinodes
+    print_puzzle(puzzle)
+    return sum(len(line) - line.count(".") for line in puzzle)
 
 
 if __name__ == "__main__":
