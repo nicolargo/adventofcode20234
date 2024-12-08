@@ -74,7 +74,7 @@ def part1(puzzle):
         set_puzzle(puzzle, a[0], a[1], "#")
     # Return the number of antinodes
     # print_puzzle(puzzle)
-    return sum(line.count(".") for line in puzzle)
+    return sum(line.count("#") for line in puzzle)
 
 
 def get_tfrequency(antennas, puzzle):
@@ -101,7 +101,7 @@ def get_tfrequency(antennas, puzzle):
 
 
 def part2(puzzle):
-    print_puzzle(puzzle)
+    # print_puzzle(puzzle)
     # Get antennas position in the puzzle as a dict:
     # key = frequency
     # values: list of position
@@ -114,7 +114,7 @@ def part2(puzzle):
             continue
         set_puzzle(puzzle, a[0], a[1], "#")
     # Return the number of antinodes
-    print_puzzle(puzzle)
+    # print_puzzle(puzzle)
     return sum(len(line) - line.count(".") for line in puzzle)
 
 
